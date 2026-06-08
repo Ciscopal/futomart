@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post an Item - FutoMart</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .post-container {
+            max-width: 650px;
+            margin: 40px auto;
+            padding: 0 20px 60px;
+        }
+
+        .post-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .post-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #222;
+            margin-bottom: 6px;
+        }
+
+        .post-subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #008000;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .image-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: border 0.2s;
+        }
+
+        .image-upload:hover {
+            border-color: #008000;
+        }
+
+        .image-upload p {
+            color: #888;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .image-upload span {
+            font-size: 36px;
+        }
+
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .image-preview img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #008000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #006600;
+        }
+
+        .success-msg {
+            background: #f0fff0;
+            color: #008000;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .error-msg {
+            background: #fff0f0;
+            color: #cc0000;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .custom-select {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .select-selected {
+            padding: 12px 35px 12px 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            color: #333;
+            position: relative;
+            transition: border 0.2s;
+        }
+
+        .select-selected:after {
+            content: "";
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid #008000;
+        }
+
+        .select-selected.open {
+            border-color: #008000;
+        }
+
+        .select-items {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #008000;
+            border-radius: 8px;
+            z-index: 999;
+            margin-top: 4px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .select-items div {
+            padding: 10px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #333;
+            transition: background 0.15s;
+        }
+
+        .select-items div:hover {
+            background-color: #008000;
+            color: white;
+        }
+
+        .select-items div.selected {
+            background-color: #e8f5e9;
+            color: #008000;
+            font-weight: 600;
+        }
+
+        .select-hide {
+            display: none;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #008000;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .post-container {
+                margin: 20px auto;
+            }
+
+            .post-box {
+                padding: 25px 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+                gap: 15px;
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .nav-links a {
+                margin-left: 0;
+                font-size: 15px;
+                padding: 8px 0;
+                border-bottom: 1px solid #f0f0f0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">FutoMart</div>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="listings.html">Browse</a>
+            <a href="auth.html" class="btn-login">Login</a>
+            <a href="auth.html" class="btn-signup">Sign Up</a>
+        </div>
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="post-container">
+        <div class="post-box">
+
+            <h1 class="post-title">Post an Item</h1>
+            <p class="post-subtitle">Fill in the details below to list your item for sale</p>
+
+            <div class="success-msg" id="success-msg">
+                Item listed successfully! Redirecting to listings...
+            </div>
+            <div class="error-msg" id="error-msg"></div>
+
+            <div class="form-group">
+                <label>Item Title</label>
+                <input type="text" id="item-title" placeholder="e.g. HP Laptop 8GB RAM">
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <div class="custom-select" id="post-category-select">
+                    <div class="select-selected">Select category</div>
+                    <div class="select-items select-hide">
+                        <div data-value="laptops">Laptops</div>
+                        <div data-value="phones">Phones</div>
+                        <div data-value="textbooks">Textbooks</div>
+                        <div data-value="furniture">Furniture</div>
+                        <div data-value="clothing">Clothing</div>
+                        <div data-value="accessories">Accessories</div>
+                    </div>
+                </div>
+                <input type="hidden" id="item-category">
+            </div>
+
+            <div class="form-group">
+                <label>Condition</label>
+                <div class="custom-select" id="post-condition-select">
+                    <div class="select-selected">Select condition</div>
+                    <div class="select-items select-hide">
+                        <div data-value="new">New</div>
+                        <div data-value="used-good">Used - Good</div>
+                        <div data-value="used-fair">Used - Fair</div>
+                    </div>
+                </div>
+                <input type="hidden" id="item-condition">
+            </div>
+
+            <div class="form-group">
+                <label>Price (NGN)</label>
+                <input type="number" id="item-price" placeholder="e.g. 85000">
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="item-description"
+                    placeholder="Describe your item — condition, specs, reason for selling..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Your WhatsApp Number</label>
+                <input type="tel" id="item-phone" placeholder="e.g. 08012345678">
+            </div>
+
+            <div class="form-group">
+                <label>Photos</label>
+                <div class="image-upload" onclick="document.getElementById('image-input').click()">
+                    <span>📷</span>
+                    <p>Click to upload photos of your item</p>
+                    <input type="file" id="image-input" multiple accept="image/*" style="display:none"
+                        onchange="previewImages(event)">
+                </div>
+                <div class="image-preview" id="image-preview"></div>
+            </div>
+
+            <button class="submit-btn" onclick="submitListing()">Post Item</button>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 FutoMart. Built for FUTO Students.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script>
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        async function checkAuth() {
+            const { data } = await supabase.auth.getUser()
+            if (data.user) {
+                document.getElementById('nav-links').innerHTML =
+                    '<a href="index.html">Home</a>' +
+                    '<a href="listings.html">Browse</a>' +
+                    '<a href="post.html">Sell Item</a>' +
+                    '<span style="margin-left:20px;font-weight:600;color:#008000;font-size:14px;">' + data.user.email + '</span>' +
+                    '<a href="#" onclick="handleLogout()" class="btn-signup" style="margin-left:10px;">Logout</a>'
+            }
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut()
+            window.location.href = 'index.html'
+        }
+
+        function toggleMenu() {
+            document.getElementById('nav-links').classList.toggle('open')
+        }
+
+        function previewImages(event) {
+            const preview = document.getElementById('image-preview')
+            preview.innerHTML = ''
+            const files = event.target.files
+            Array.from(files).forEach(function (file) {
+                const reader = new FileReader()
+                reader.onload = function (e) {
+                    const img = document.createElement('img')
+                    img.src = e.target.result
+                    preview.appendChild(img)
+                }
+                reader.readAsDataURL(file)
+            })
+        }
+
+        async function submitListing() {
+            const title = document.getElementById('item-title').value
+            const category = document.getElementById('item-category').value
+            const condition = document.getElementById('item-condition').value
+            const price = document.getElementById('item-price').value
+            const description = document.getElementById('item-description').value
+            const phone = document.getElementById('item-phone').value
+            const imageFile = document.getElementById('image-input').files[0]
+            const error = document.getElementById('error-msg')
+            const success = document.getElementById('success-msg')
+
+            if (!title || !category || !condition || !price || !description || !phone) {
+                error.style.display = 'block'
+                error.textContent = 'Please fill in all fields.'
+                return
+            }
+
+            const { data: userData } = await supabase.auth.getUser()
+            if (!userData.user) {
+                error.style.display = 'block'
+                error.textContent = 'You must be logged in to post an item.'
+                return
+            }
+
+            let imageUrl = ''
+
+            if (imageFile) {
+                const fileName = Date.now() + '-' + imageFile.name
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('listings-images')
+                    .upload(fileName, imageFile)
+
+                if (uploadError) {
+                    error.style.display = 'block'
+                    error.textContent = 'Image upload failed. Try again.'
+                    return
+                }
+
+                const { data: urlData } = supabase.storage
+                    .from('listings-images')
+                    .getPublicUrl(fileName)
+
+                imageUrl = urlData.publicUrl
+            }
+
+            const { error: insertError } = await supabase.from('listings').insert({
+                title: title,
+                category: category,
+                condition: condition,
+                price: parseFloat(price),
+                description: description,
+                phone: phone,
+                image_url: imageUrl,
+                user_id: userData.user.id
+            })
+
+            if (insertError) {
+                error.style.display = 'block'
+                error.textContent = 'Failed to post item. Try again.'
+                return
+            }
+
+            error.style.display = 'none'
+            success.style.display = 'block'
+
+            setTimeout(function () {
+                window.location.href = 'listings.html'
+            }, 2000)
+        }
+
+        function setupDropdown(selectId, hiddenId) {
+            const container = document.getElementById(selectId)
+            const selected = container.querySelector('.select-selected')
+            const items = container.querySelector('.select-items')
+
+            selected.addEventListener('click', function (e) {
+                e.stopPropagation()
+                document.querySelectorAll('.select-items').forEach(function (el) {
+                    if (el !== items) el.classList.add('select-hide')
+                })
+                document.querySelectorAll('.select-selected').forEach(function (el) {
+                    if (el !== selected) el.classList.remove('open')
+                })
+                items.classList.toggle('select-hide')
+                selected.classList.toggle('open')
+            })
+
+            items.querySelectorAll('div').forEach(function (option) {
+                option.addEventListener('click', function () {
+                    selected.textContent = this.textContent
+                    selected.classList.remove('open')
+                    items.classList.add('select-hide')
+                    items.querySelectorAll('div').forEach(function (el) {
+                        el.classList.remove('selected')
+                    })
+                    this.classList.add('selected')
+                    document.getElementById(hiddenId).value = this.getAttribute('data-value')
+                })
+            })
+        }
+
+        document.addEventListener('click', function () {
+            document.querySelectorAll('.select-items').forEach(function (el) {
+                el.classList.add('select-hide')
+            })
+            document.querySelectorAll('.select-selected').forEach(function (el) {
+                el.classList.remove('open')
+            })
+        })
+
+        setupDropdown('post-category-select', 'item-category')
+        setupDropdown('post-condition-select', 'item-condition')
+        checkAuth()
+    </script>
+
+</body>
+
+</html>

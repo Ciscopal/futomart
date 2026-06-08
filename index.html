@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutoMart - Buy & Sell on Campus</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">FutoMart</div>
+        <div class="nav-links" id="nav-links">
+            <a href="listings.html">Browse</a>
+            <a href="post.html">Sell Item</a>
+            <a href="auth.html" class="btn-login">Login</a>
+            <a href="auth.html" class="btn-signup">Sign Up</a>
+        </div>
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <h1>Buy & Sell Within FUTO Campus</h1>
+        <p>Find laptops, phones, textbooks, furniture and more from fellow students</p>
+        <div class="search-bar">
+            <input type="text" placeholder="Search for laptops, phones, books...">
+            <button>Search</button>
+        </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="categories">
+        <h2>Browse by Category</h2>
+        <div class="category-grid">
+            <div class="category-card" onclick="window.location.href='listings.html?category=laptops'">💻 Laptops</div>
+            <div class="category-card" onclick="window.location.href='listings.html?category=phones'">📱 Phones</div>
+            <div class="category-card" onclick="window.location.href='listings.html?category=textbooks'">📚 Textbooks
+            </div>
+            <div class="category-card" onclick="window.location.href='listings.html?category=furniture'">🪑 Furniture
+            </div>
+            <div class="category-card" onclick="window.location.href='listings.html?category=clothing'">👟 Clothing
+            </div>
+            <div class="category-card" onclick="window.location.href='listings.html?category=accessories'">🔌
+                Accessories</div>
+        </div>
+    </section>
+
+    <!-- RECENT LISTINGS -->
+    <section class="listings">
+        <h2>Recent Listings</h2>
+        <div class="listings-grid" id="listings-grid">
+            <!-- Listings will load here -->
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>© 2026 FutoMart. Built for FUTO Students.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script>
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        async function checkAuth() {
+            const { data } = await supabase.auth.getUser()
+            if (data.user) {
+                document.querySelector('.nav-links').innerHTML =
+                    '<a href="listings.html">Browse</a>' +
+                    '<a href="post.html">Sell Item</a>' +
+                    '<span style="margin-left:20px;font-weight:600;color:#008000;font-size:14px;">' + data.user.email + '</span>' +
+                    '<a href="#" onclick="handleLogout()" class="btn-signup" style="margin-left:10px;">Logout</a>'
+            }
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut()
+            window.location.reload()
+        }
+
+        function toggleMenu() {
+            document.getElementById('nav-links').classList.toggle('open')
+        }
+
+        async function loadRecentListings() {
+            const { data, error } = await supabase
+                .from('listings')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(8)
+
+            if (error || !data) return
+
+            const grid = document.getElementById('listings-grid')
+            grid.innerHTML = ''
+
+            if (data.length === 0) {
+                grid.innerHTML = '<p style="color:#888;">No listings yet. Be the first to post!</p>'
+                return
+            }
+
+            data.forEach(function (item) {
+                const image = item.image_url ? item.image_url : 'https://placehold.co/300x180?text=No+Image'
+                grid.innerHTML += '<div class="listing-card" onclick="window.location.href=\'item.html?id=' + item.id + '\'">' +
+                    '<img src="' + image + '" alt="' + item.title + '">' +
+                    '<div class="listing-info">' +
+                    '<h3>' + item.title + '</h3>' +
+                    '<div class="price">NGN ' + Number(item.price).toLocaleString() + '</div>' +
+                    '<div class="condition">' + item.condition + '</div>' +
+                    '</div></div>'
+            })
+        }
+
+        checkAuth()
+        loadRecentListings()
+    </script>
+</body>
+
+</html>
