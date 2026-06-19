@@ -39,12 +39,15 @@ function displayListings(listings) {
 
     listings.forEach(function (item) {
         const image = item.image_url ? item.image_url : 'https://placehold.co/300x180?text=No+Image'
-        grid.innerHTML += '<div class="listing-card" onclick="window.location.href=\'item.html?id=' + item.id + '\'">' +
+        const soldBadge = item.sold ? '<div style="background:#856404;color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;margin-top:4px;">SOLD</div>' : ''
+        const opacity = item.sold ? 'opacity:0.6;' : ''
+        grid.innerHTML += '<div class="listing-card" style="' + opacity + '" onclick="window.location.href=\'item.html?id=' + item.id + '\'">' +
             '<img src="' + image + '" alt="' + item.title + '">' +
             '<div class="listing-info">' +
             '<h3>' + item.title + '</h3>' +
             '<div class="price">NGN ' + Number(item.price).toLocaleString() + '</div>' +
             '<div class="condition">' + item.condition + '</div>' +
+            soldBadge +
             '</div></div>'
     })
 }
@@ -111,6 +114,7 @@ async function checkAuth() {
             '<a href="index.html">Home</a>' +
             '<a href="listings.html">Browse</a>' +
             '<a href="post.html">Sell Item</a>' +
+            '<a href="dashboard.html">My Listings</a>' +
             '<span style="margin-left:20px;font-weight:600;color:#008000;font-size:14px;">' + data.user.email + '</span>' +
             '<a href="#" onclick="handleLogout()" class="btn-signup" style="margin-left:10px;">Logout</a>'
     }
