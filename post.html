@@ -439,6 +439,11 @@
             const description = document.getElementById('item-description').value
             const phone = document.getElementById('item-phone').value
             const imageFile = document.getElementById('image-input').files[0]
+            if (imageFile && imageFile.size > 2 * 1024 * 1024) {
+                error.style.display = 'block'
+                error.textContent = 'Image too large. Maximum size is 2MB.'
+                return
+            }
             const error = document.getElementById('error-msg')
             const success = document.getElementById('success-msg')
 
