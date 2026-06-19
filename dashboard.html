@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - FutoMart</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px 60px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #222;
+        }
+
+        .btn-post {
+            background-color: #008000;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dashboard-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .dashboard-card-info {
+            flex: 1;
+        }
+
+        .dashboard-card-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .dashboard-card-info .price {
+            color: #008000;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .dashboard-card-info .status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: #e8f5e9;
+            color: #008000;
+        }
+
+        .status-sold {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .dashboard-card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-sold {
+            padding: 8px 14px;
+            background: #fff3cd;
+            color: #856404;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            padding: 8px 14px;
+            background: #fff0f0;
+            color: #cc0000;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-view {
+            padding: 8px 14px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .empty-state a {
+            color: #008000;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #008000;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+                gap: 15px;
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .nav-links a {
+                margin-left: 0;
+                font-size: 15px;
+                padding: 8px 0;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .dashboard-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .dashboard-card img {
+                width: 100%;
+                height: 160px;
+            }
+
+            .dashboard-card-actions {
+                flex-direction: row;
+                flex-wrap: wrap;
+                width: 100%;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">FutoMart</div>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="listings.html">Browse</a>
+            <a href="post.html">Sell Item</a>
+            <a href="dashboard.html">My Listings</a>
+        </div>
+        <div class="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 id="dashboard-title">My Listings</h1>
+            <a href="post.html" class="btn-post">+ Post Item</a>
+        </div>
+
+        <div id="dashboard-listings">
+            <!-- Listings load here -->
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 FutoMart. Built for FUTO Students.</p>
+    </footer>
+
+    <a href="https://wa.me/2349034275126?text=Hi, I need help with FutoMart" target="_blank"
+        style="position:fixed;bottom:25px;right:25px;background-color:#25D366;border-radius:50%;width:55px;height:55px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;text-decoration:none;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="30" height="30">
+    </a>
+
+    <script>
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        function toggleMenu() {
+            document.getElementById('nav-links').classList.toggle('open')
+        }
+
+        async function checkAuth() {
+            const { data } = await supabase.auth.getUser()
+            if (!data.user) {
+                window.location.href = 'auth.html'
+                return
+            }
+            document.getElementById('nav-links').innerHTML =
+                '<a href="index.html">Home</a>' +
+                '<a href="listings.html">Browse</a>' +
+                '<a href="post.html">Sell Item</a>' +
+                '<a href="dashboard.html">My Listings</a>' +
+                '<span style="margin-left:20px;font-weight:600;color:#008000;font-size:14px;">' + data.user.email + '</span>' +
+                '<a href="#" onclick="handleLogout()" class="btn-signup" style="margin-left:10px;">Logout</a>'
+
+            loadMyListings(data.user.id)
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut()
+            window.location.href = 'index.html'
+        }
+
+        async function loadMyListings(userId) {
+            const { data, error } = await supabase
+                .from('listings')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+
+            const container = document.getElementById('dashboard-listings')
+
+            if (error || !data || data.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>You have no listings yet</h3><p>Start selling by <a href="post.html">posting an item</a></p></div>'
+                return
+            }
+
+            container.innerHTML = ''
+            data.forEach(function (item) {
+                const image = item.image_url ? item.image_url : 'https://placehold.co/80x80?text=No+Image'
+                const status = item.sold ? 'status-sold">Sold' : 'status-available">Available'
+                container.innerHTML += '<div class="dashboard-card" id="card-' + item.id + '">' +
+                    '<img src="' + image + '" alt="' + item.title + '">' +
+                    '<div class="dashboard-card-info">' +
+                    '<h3>' + item.title + '</h3>' +
+                    '<div class="price">NGN ' + Number(item.price).toLocaleString() + '</div>' +
+                    '<span class="status ' + status + '</span>' +
+                    '</div>' +
+                    '<div class="dashboard-card-actions">' +
+                    '<a href="item.html?id=' + item.id + '" class="btn-view">View</a>' +
+                    '<button class="btn-sold" onclick="markAsSold(\'' + item.id + '\', ' + item.sold + ')">' + (item.sold ? 'Mark Available' : 'Mark Sold') + '</button>' +
+                    '<button class="btn-delete" onclick="deleteListing(\'' + item.id + '\')">Delete</button>' +
+                    '</div>' +
+                    '</div>'
+            })
+        }
+
+        async function markAsSold(id, currentStatus) {
+            const { error } = await supabase
+                .from('listings')
+                .update({ sold: !currentStatus })
+                .eq('id', id)
+
+            if (!error) {
+                checkAuth()
+            }
+        }
+
+        async function deleteListing(id) {
+            if (!confirm('Are you sure you want to delete this listing?')) return
+
+            const { error } = await supabase
+                .from('listings')
+                .delete()
+                .eq('id', id)
+
+            if (!error) {
+                document.getElementById('card-' + id).remove()
+            }
+        }
+
+        checkAuth()
+    </script>
+
+</body>
+
+</html>

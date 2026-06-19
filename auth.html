@@ -225,6 +225,10 @@
                     Don't have an account?
                     <a href="#" onclick="switchTab('signup')">Sign Up</a>
                 </div>
+                <div style="text-align:center;margin-top:12px;">
+                    <a href="#" onclick="handlePasswordReset()"
+                        style="color:#008000;font-size:13px;font-weight:600;text-decoration:none;">Forgot Password?</a>
+                </div>
             </div>
 
             <!-- SIGNUP FORM -->
@@ -293,12 +297,17 @@
             const password = document.getElementById('login-password').value
             const error = document.getElementById('login-error')
             const success = document.getElementById('login-success')
+            const btn = document.querySelector('#login-form .auth-btn')
 
             if (!email || !password) {
                 error.style.display = 'block'
                 error.textContent = 'Please fill in all fields.'
                 return
             }
+
+            btn.textContent = 'Logging in...'
+            btn.style.opacity = '0.7'
+            btn.disabled = true
 
             const { data, error: loginError } = await supabase.auth.signInWithPassword({
                 email: email,
@@ -308,6 +317,9 @@
             if (loginError) {
                 error.style.display = 'block'
                 error.textContent = loginError.message
+                btn.textContent = 'Login'
+                btn.style.opacity = '1'
+                btn.disabled = false
                 return
             }
 
@@ -328,6 +340,7 @@
             const confirm = document.getElementById('signup-confirm').value
             const error = document.getElementById('signup-error')
             const success = document.getElementById('signup-success')
+            const btn = document.querySelector('#signup-form .auth-btn')
 
             if (!name || !email || !phone || !password || !confirm) {
                 error.style.display = 'block'
@@ -347,6 +360,10 @@
                 return
             }
 
+            btn.textContent = 'Creating Account...'
+            btn.style.opacity = '0.7'
+            btn.disabled = true
+
             const { data, error: signupError } = await supabase.auth.signUp({
                 email: email,
                 password: password
@@ -355,12 +372,11 @@
             if (signupError) {
                 error.style.display = 'block'
                 error.textContent = signupError.message
+                btn.textContent = 'Create Account'
+                btn.style.opacity = '1'
+                btn.disabled = false
                 return
             }
-
-            error.style.display = 'none'
-            success.style.display = 'block'
-            success.textContent = 'Account created successfully! Redirecting...'
 
             if (data.user) {
                 try {
@@ -374,13 +390,45 @@
                 }
             }
 
+            error.style.display = 'none'
+            success.style.display = 'block'
+            success.textContent = 'Account created successfully! Redirecting...'
+
             setTimeout(function () {
                 window.location.href = 'index.html'
             }, 1500)
         }
+
+        async function handlePasswordReset() {
+            const email = document.getElementById('login-email').value
+            const error = document.getElementById('login-error')
+            const success = document.getElementById('login-success')
+
+            if (!email) {
+                error.style.display = 'block'
+                error.textContent = 'Please enter your email address first.'
+                return
+            }
+
+            const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: 'https://futomart.vercel.app/reset.html'
+            })
+
+            if (resetError) {
+                error.style.display = 'block'
+                error.textContent = resetError.message
+                return
+            }
+
+            error.style.display = 'none'
+            success.style.display = 'block'
+            success.textContent = 'Password reset link sent! Check your email.'
+        }
+
     </script>
 
-    <a href="https://wa.me/2349034275126?text=Hi, I need help with FutoMart" class="whatsapp-float" target="_blank">
+    <a href="https://wa.me/2349034275126?text=Hi, I need help with FutoMart" target="_blank"
+        style="position:fixed;bottom:25px;right:25px;background-color:#25D366;border-radius:50%;width:55px;height:55px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;text-decoration:none;">
         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="30" height="30">
     </a>
 </body>

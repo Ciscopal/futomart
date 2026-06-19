@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - FutoMart</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .reset-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .reset-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .reset-logo {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 800;
+            color: #008000;
+            margin-bottom: 8px;
+        }
+
+        .reset-subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            border-color: #008000;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 13px;
+            background-color: #008000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .reset-btn:hover {
+            background-color: #006600;
+        }
+
+        .error-msg {
+            background: #fff0f0;
+            color: #cc0000;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success-msg {
+            background: #f0fff0;
+            color: #008000;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .back-link a {
+            color: #008000;
+            font-weight: 600;
+            text-decoration: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">FutoMart</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="listings.html">Browse</a>
+            <a href="dashboard.html">My Listings</a>
+        </div>
+    </nav>
+
+    <div class="reset-container">
+        <div class="reset-box">
+
+            <div class="reset-logo">FutoMart</div>
+            <div class="reset-subtitle">Enter your new password below</div>
+
+            <div class="error-msg" id="reset-error"></div>
+            <div class="success-msg" id="reset-success"></div>
+
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="new-password" placeholder="Enter new password">
+            </div>
+
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirm-password" placeholder="Confirm new password">
+            </div>
+
+            <button class="reset-btn" onclick="updatePassword()">Update Password</button>
+
+            <div class="back-link">
+                <a href="auth.html">Back to Login</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        async function updatePassword() {
+            const newPassword = document.getElementById('new-password').value
+            const confirmPassword = document.getElementById('confirm-password').value
+            const error = document.getElementById('reset-error')
+            const success = document.getElementById('reset-success')
+            const btn = document.querySelector('.reset-btn')
+
+            if (!newPassword || !confirmPassword) {
+                error.style.display = 'block'
+                error.textContent = 'Please fill in all fields.'
+                return
+            }
+
+            if (newPassword.length < 6) {
+                error.style.display = 'block'
+                error.textContent = 'Password must be at least 6 characters.'
+                return
+            }
+
+            if (newPassword !== confirmPassword) {
+                error.style.display = 'block'
+                error.textContent = 'Passwords do not match.'
+                return
+            }
+
+            btn.textContent = 'Updating...'
+            btn.style.opacity = '0.7'
+            btn.disabled = true
+
+            const { error: updateError } = await supabase.auth.updateUser({
+                password: newPassword
+            })
+
+            if (updateError) {
+                error.style.display = 'block'
+                error.textContent = updateError.message
+                btn.textContent = 'Update Password'
+                btn.style.opacity = '1'
+                btn.disabled = false
+                return
+            }
+
+            error.style.display = 'none'
+            success.style.display = 'block'
+            success.textContent = 'Password updated successfully! Redirecting to login...'
+
+            setTimeout(function () {
+                window.location.href = 'auth.html'
+            }, 2000)
+        }
+    </script>
+
+    <a href="https://wa.me/2349034275126?text=Hi, I need help with FutoMart" target="_blank"
+        style="position:fixed;bottom:25px;right:25px;background-color:#25D366;border-radius:50%;width:55px;height:55px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;text-decoration:none;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="30" height="30">
+    </a>
+
+</body>
+
+</html>
