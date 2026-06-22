@@ -34,8 +34,8 @@
         <h1>Buy & Sell Within FUTO Campus</h1>
         <p>Find laptops, phones, textbooks, furniture and more from fellow students</p>
         <div class="search-bar">
-            <input type="text" placeholder="Search for laptops, phones, books...">
-            <button>Search</button>
+            <input type="text" id="hero-search" placeholder="Search for laptops, phones, books...">
+            <button onclick="handleSearch()">Search</button>
         </div>
     </section>
 
@@ -95,6 +95,21 @@
         function toggleMenu() {
             document.getElementById('nav-links').classList.toggle('open')
         }
+
+        function handleSearch() {
+            const query = document.getElementById('hero-search').value.trim()
+            if (query) {
+                window.location.href = 'listings.html?search=' + encodeURIComponent(query)
+            } else {
+                window.location.href = 'listings.html'
+            }
+        }
+
+        document.getElementById('hero-search').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleSearch()
+            }
+        })
 
         async function loadRecentListings() {
             const { data, error } = await supabase

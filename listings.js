@@ -11,6 +11,8 @@ if (categoryParam) {
     selectedCategory = categoryParam
 }
 
+var searchParam = urlParams.get('search')
+
 async function loadListings() {
     const { data, error } = await supabase
         .from('listings')
@@ -54,7 +56,7 @@ function displayListings(listings) {
 
 function filterListings() {
     const maxPrice = document.getElementById('price-filter').value
-    const search = document.getElementById('search-input').value.toLowerCase()
+    const search = document.getElementById('search-input').value.toLowerCase() || (searchParam ? searchParam.toLowerCase() : '')
 
     const filtered = allListings.filter(function (item) {
         const matchCategory = selectedCategory === 'all' || item.category === selectedCategory

@@ -134,6 +134,24 @@
             background-color: #1ebe5d;
         }
 
+        .btn-whatsapp.sold {
+            background-color: #aaa;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .sold-banner {
+            background: #856404;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+        }
+
         .btn-back {
             display: block;
             width: 100%;
@@ -244,9 +262,10 @@
         <div class="nav-links" id="nav-links">
             <a href="index.html">Home</a>
             <a href="listings.html">Browse</a>
+            <a href="post.html">Sell Item</a>
+            <a href="dashboard.html">My Listings</a>
             <a href="auth.html" class="btn-login">Login</a>
             <a href="auth.html" class="btn-signup">Sign Up</a>
-             <a href="dashboard.html">My Listings</a>
         </div>
         <div class="hamburger" id="hamburger" onclick="toggleMenu()">
             <span></span>
@@ -264,7 +283,11 @@
         </div>
 
         <!-- DETAILS -->
-        <div class="item-details">
+        <div class="item-details" id="item-details">
+
+            <!-- SOLD BANNER -->
+            <div class="sold-banner" id="sold-banner">⚠️ This item has already been sold</div>
+
             <span class="item-category" id="item-category"></span>
             <h1 class="item-title" id="item-title"></h1>
             <div class="item-price" id="item-price"></div>
@@ -299,6 +322,11 @@
     <footer>
         <p>© 2026 FutoMart. Built for FUTO Community.</p>
     </footer>
+
+    <a href="https://wa.me/2349034275126?text=Hi, I need help with FutoMart" target="_blank"
+        style="position:fixed;bottom:25px;right:25px;background-color:#25D366;border-radius:50%;width:55px;height:55px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;text-decoration:none;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="30" height="30">
+    </a>
 
     <script>
         var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
@@ -381,16 +409,22 @@
             document.getElementById('seller-name').textContent = sellerName
             document.getElementById('seller-avatar').textContent = sellerName.charAt(0).toUpperCase()
             document.getElementById('seller-joined').textContent = sellerJoined + ' • FUTO Student'
-            document.getElementById('whatsapp-btn').href = 'https://wa.me/' + data.phone.replace('0', '234').replace(' ', '') + '?text=Hi, I saw your ' + data.title + ' on FutoMart and I am interested'
+
+            if (data.sold) {
+                document.getElementById('sold-banner').style.display = 'block'
+                const whatsappBtn = document.getElementById('whatsapp-btn')
+                whatsappBtn.classList.add('sold')
+                whatsappBtn.textContent = '❌ Item Already Sold'
+                whatsappBtn.removeAttribute('href')
+            } else {
+                document.getElementById('whatsapp-btn').href = 'https://wa.me/' + data.phone.replace('0', '234').replace(' ', '') + '?text=Hi, I saw your ' + data.title + ' on FutoMart and I am interested'
+            }
         }
 
         checkAuth()
         loadItem()
     </script>
-    <a href="https://wa.me/2349034275126?text=Hi, I need help with FutoMart" target="_blank"
-        style="position:fixed;bottom:25px;right:25px;background-color:#25D366;border-radius:50%;width:55px;height:55px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;text-decoration:none;">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="30" height="30">
-    </a>
+
 </body>
 
 </html>
