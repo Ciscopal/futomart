@@ -311,6 +311,37 @@
                 </div>
             </div>
 
+            <!-- RATING SECTION -->
+            <div id="rating-section" style="margin-bottom:20px;">
+                <div id="seller-rating" style="margin-bottom:10px;font-size:14px;color:#555;"></div>
+                <button onclick="showRatingForm()" id="rate-btn"
+                    style="display:none;width:100%;padding:12px;background:#fff3cd;color:#856404;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:12px;">
+                    ⭐ Rate this Seller
+                </button>
+                <div id="rating-form"
+                    style="display:none;background:#f9f9f9;padding:15px;border-radius:10px;margin-bottom:12px;">
+                    <p style="font-size:13px;font-weight:600;color:#444;margin-bottom:10px;">Rate your experience with
+                        this seller:</p>
+                    <div style="display:flex;gap:10px;margin-bottom:12px;">
+                        <button onclick="setRating(1)" class="star-btn" data-rating="1"
+                            style="font-size:24px;background:none;border:none;cursor:pointer;">⭐</button>
+                        <button onclick="setRating(2)" class="star-btn" data-rating="2"
+                            style="font-size:24px;background:none;border:none;cursor:pointer;">⭐</button>
+                        <button onclick="setRating(3)" class="star-btn" data-rating="3"
+                            style="font-size:24px;background:none;border:none;cursor:pointer;">⭐</button>
+                        <button onclick="setRating(4)" class="star-btn" data-rating="4"
+                            style="font-size:24px;background:none;border:none;cursor:pointer;">⭐</button>
+                        <button onclick="setRating(5)" class="star-btn" data-rating="5"
+                            style="font-size:24px;background:none;border:none;cursor:pointer;">⭐</button>
+                    </div>
+                    <textarea id="rating-comment" placeholder="Leave a comment (optional)"
+                        style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:13px;outline:none;resize:none;height:80px;box-sizing:border-box;"></textarea>
+                    <button onclick="submitRating()"
+                        style="width:100%;padding:10px;background:#008000;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:10px;">Submit
+                        Rating</button>
+                </div>
+            </div>
+
             <!-- BUTTONS -->
             <a href="#" class="btn-whatsapp" id="whatsapp-btn" target="_blank">
                 💬 Contact Seller on WhatsApp
@@ -318,6 +349,10 @@
             <button onclick="shareItem()"
                 style="display:block;width:100%;padding:12px;background:#f0f0f0;color:#333;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:12px;">
                 🔗 Share this Listing
+            </button>
+            <button onclick="reportItem()"
+                style="display:block;width:100%;padding:12px;background:#fff0f0;color:#cc0000;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:12px;">
+                Report this Listing
             </button>
             <a href="listings.html" class="btn-back">← Back to Listings</a>
         </div>
@@ -427,6 +462,14 @@
             } else {
                 document.getElementById('whatsapp-btn').href = 'https://wa.me/' + data.phone.replace('0', '234').replace(' ', '') + '?text=Hi, I saw your ' + data.title + ' on FutoMart and I am interested'
             }
+
+            currentItemData = data
+            loadSellerRating(data.user_id)
+
+            const { data: userData } = await supabase.auth.getUser()
+            if (userData.user && userData.user.id !== data.user_id) {
+                document.getElementById('rate-btn').style.display = 'block'
+            }
         }
 
         checkAuth()
@@ -445,6 +488,99 @@
                     alert('Link copied to clipboard!')
                 })
             }
+        }
+
+        async function reportItem() {
+            const { data: userData } = await supabase.auth.getUser()
+            if (!userData.user) {
+                alert('You must be logged in to report a listing.')
+                return
+            }
+
+            const reason = prompt('Why are you reporting this listing?\n\n1. Fake or misleading\n2. Stolen item\n3. Inappropriate content\n4. Scam\n5. Other\n\nType your reason:')
+
+            if (!reason) return
+
+            const params = new URLSearchParams(window.location.search)
+            const id = params.get('id')
+
+            const { error } = await supabase.from('reports').insert({
+                listing_id: id,
+                reporter_id: userData.user.id,
+                reason: reason
+            })
+
+            if (error) {
+                alert('Failed to submit report. Try again.')
+                return
+            }
+
+            alert('Thank you! Your report has been submitted and will be reviewed.')
+        }
+
+        var selectedRating = 0
+        var currentItemData = null
+
+        function showRatingForm() {
+            document.getElementById('rating-form').style.display = 'block'
+            document.getElementById('rate-btn').style.display = 'none'
+        }
+
+        function setRating(rating) {
+            selectedRating = rating
+            document.querySelectorAll('.star-btn').forEach(function (btn) {
+                btn.style.opacity = btn.getAttribute('data-rating') <= rating ? '1' : '0.3'
+            })
+        }
+
+        async function submitRating() {
+            const { data: userData } = await supabase.auth.getUser()
+            if (!userData.user) {
+                alert('You must be logged in to rate a seller.')
+                return
+            }
+
+            if (selectedRating === 0) {
+                alert('Please select a star rating.')
+                return
+            }
+
+            const comment = document.getElementById('rating-comment').value
+            const params = new URLSearchParams(window.location.search)
+            const id = params.get('id')
+
+            const { error } = await supabase.from('ratings').insert({
+                seller_id: currentItemData.user_id,
+                buyer_id: userData.user.id,
+                listing_id: id,
+                rating: selectedRating,
+                comment: comment
+            })
+
+            if (error) {
+                alert('Failed to submit rating. You may have already rated this seller.')
+                return
+            }
+
+            document.getElementById('rating-form').style.display = 'none'
+            alert('Thank you for your rating!')
+            loadSellerRating(currentItemData.user_id)
+        }
+
+        async function loadSellerRating(sellerId) {
+            const { data, error } = await supabase
+                .from('ratings')
+                .select('rating')
+                .eq('seller_id', sellerId)
+
+            if (error || !data || data.length === 0) {
+                document.getElementById('seller-rating').textContent = 'No ratings yet'
+                return
+            }
+
+            const avg = data.reduce(function (sum, r) { return sum + r.rating }, 0) / data.length
+            const stars = '⭐'.repeat(Math.round(avg))
+            document.getElementById('seller-rating').innerHTML = stars + ' <strong>' + avg.toFixed(1) + '</strong> (' + data.length + ' rating' + (data.length > 1 ? 's' : '') + ')'
         }
     </script>
 
