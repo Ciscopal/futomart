@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Item Details - FutoMart</title>
+    <meta name="description"
+        content="FutoMart - Buy and sell within FUTO community. The trusted marketplace for FUTO community.">
     <link rel="stylesheet" href="style.css">
     <style>
         .item-container {
@@ -313,6 +315,10 @@
             <a href="#" class="btn-whatsapp" id="whatsapp-btn" target="_blank">
                 💬 Contact Seller on WhatsApp
             </a>
+            <button onclick="shareItem()"
+                style="display:block;width:100%;padding:12px;background:#f0f0f0;color:#333;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:12px;">
+                🔗 Share this Listing
+            </button>
             <a href="listings.html" class="btn-back">← Back to Listings</a>
         </div>
 
@@ -320,7 +326,9 @@
 
     <!-- FOOTER -->
     <footer>
-        <p>© 2026 FutoMart. Built for FUTO Community.</p>
+        <p>© 2026 FutoMart. Built for FUTO Community. | <a href="about.html"
+                style="color:white;text-decoration:underline;">About</a> | <a href="terms.html"
+                style="color:white;text-decoration:underline;">Terms</a></p>
     </footer>
 
     <a href="https://wa.me/2349034275126?text=Hi, I need help with FutoMart" target="_blank"
@@ -423,6 +431,21 @@
 
         checkAuth()
         loadItem()
+
+        function shareItem() {
+            const url = window.location.href
+            const title = document.getElementById('item-title').textContent
+            if (navigator.share) {
+                navigator.share({
+                    title: title + ' - FutoMart',
+                    url: url
+                })
+            } else {
+                navigator.clipboard.writeText(url).then(function () {
+                    alert('Link copied to clipboard!')
+                })
+            }
+        }
     </script>
 
 </body>
