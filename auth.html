@@ -400,11 +400,10 @@
 
             error.style.display = 'none'
             success.style.display = 'block'
-            success.textContent = 'Account created successfully! Redirecting...'
-
-            setTimeout(function () {
-                window.location.href = 'index.html'
-            }, 1500)
+            success.textContent = 'Account created! Please check your email to verify your account before logging in.'
+            btn.textContent = 'Create Account'
+            btn.style.opacity = '1'
+            btn.disabled = false
         }
 
         async function handlePasswordReset() {
